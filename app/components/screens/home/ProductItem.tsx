@@ -28,7 +28,7 @@ export default function ProductItem({ product }: { product: IProduct }) {
 	useEffect(() => {
 		setNewCart(cart);
 	}, [cart]);
-	const checkItemInCart = (id: number) => {
+	const checkItemInCart = (id: string) => {
 		if (newCart && newCart.products) {
 			const foundItem = newCart?.products.some(
 				(product) => product.item.id === id

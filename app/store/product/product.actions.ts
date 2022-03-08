@@ -1,10 +1,7 @@
 import { AnyAction } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { addDoc, getDocs } from 'firebase/firestore';
 import { Dispatch } from 'react';
-import { db } from '../../../firebase/firebase';
 import { dressRef } from '../../../firebase/fireConsts';
-import { API } from '../../helpers/consts';
 import {
 	getProductsError,
 	getProductsLoading,
@@ -16,9 +13,11 @@ export const getProducts = () => async (dispatch: Dispatch<AnyAction>) => {
 	try {
 		dispatch(getProductsLoading());
 		const data = await getDocs(dressRef);
-		console.log(data);
-		// const { data } = await axios.get(`${API}/dress`);
-		dispatch(getProductsSuccess(data.docs));
+		let arr: any[] = [];
+		data.forEach((item) => {
+			arr.push({ id: item.id, ...item.data() });
+		});
+		dispatch(getProductsSuccess(arr));
 	} catch (e) {
 		dispatch(getProductsError(JSON.stringify(e)));
 	}

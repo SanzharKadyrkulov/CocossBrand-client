@@ -30,7 +30,7 @@ export default function List() {
 						<AlertError message={error} />
 					) : (
 						products.map((product: any) => (
-							<ProductItem key={product.id} product={product.data()} />
+							<ProductItem key={product.id} product={product} />
 						))
 					)}
 				</div>

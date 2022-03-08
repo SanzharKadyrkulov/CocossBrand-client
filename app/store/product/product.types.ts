@@ -15,7 +15,7 @@ export interface ISize {
 	inStock: true;
 }
 export interface IProduct {
-	id: number;
+	id: string;
 	title: string;
 	price: number;
 	image: string;
@@ -26,7 +26,7 @@ export interface IProduct {
 }
 
 export interface IProductState {
-	products: QueryDocumentSnapshot<DocumentData>[];
+	products: IProduct[];
 	loading: boolean;
 	error: null | string;
 }

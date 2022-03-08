@@ -23,9 +23,6 @@ const Admin: NextPage = () => {
 	useEffect(() => {
 		getOrders();
 	}, []);
-	useEffect(() => {
-		console.log(orders);
-	}, [orders]);
 	return (
 		<HeaderLayout>
 			<button

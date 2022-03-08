@@ -74,7 +74,6 @@ const AddDressForm = () => {
 			[e.target.name]: e.target.value,
 		};
 		infoRef.current = newObj;
-		console.log(newObj);
 	};
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
