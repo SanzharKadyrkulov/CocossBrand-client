@@ -1,5 +1,13 @@
 {
   "/_app": "pages/_app.js",
+  "/addDress": "pages/addDress.html",
+  "/admin": "pages/admin.html",
+  "/checkout": "pages/checkout.html",
+  "/contacts": "pages/contacts.html",
+  "/": "pages/index.html",
+  "/list": "pages/list.html",
+  "/orderForm": "pages/orderForm.html",
   "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js"
+  "/_document": "pages/_document.js",
+  "/404": "pages/404.html"
 }

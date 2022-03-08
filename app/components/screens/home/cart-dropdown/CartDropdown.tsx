@@ -15,7 +15,7 @@ export default function CartDropdown() {
 	const router = useRouter();
 
 	const { changeProductCount, getCart, removeProductFromCart } = useActions();
-	const handleCountChange = (count: number, id: number) => {
+	const handleCountChange = (count: number, id: string) => {
 		if (count < 1) {
 			count = 1;
 		}

@@ -26,7 +26,7 @@ export interface IProduct {
 }
 
 export interface IProductState {
-	products: IProduct[];
+	products: IProduct[] | QueryDocumentSnapshot<DocumentData>[];
 	loading: boolean;
 	error: null | string;
 }

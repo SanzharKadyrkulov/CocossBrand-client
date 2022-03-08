@@ -24,7 +24,7 @@ const productSlice = createSlice({
 		},
 		getProductsSuccess: (
 			state,
-			action: PayloadAction<QueryDocumentSnapshot<DocumentData>[]>
+			action: PayloadAction<QueryDocumentSnapshot<DocumentData>[] | IProduct[]>
 		) => {
 			state.loading = false;
 			state.error = null;

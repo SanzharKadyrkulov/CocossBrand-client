@@ -45,7 +45,7 @@ export const addProductToCart =
 	};
 
 export const removeProductFromCart =
-	(id: number) => (dispatch: Dispatch<AnyAction>) => {
+	(id: string) => (dispatch: Dispatch<AnyAction>) => {
 		let cart = JSON.parse(localStorage.getItem('cart') as string);
 		if (!cart) {
 			cart = {
@@ -64,7 +64,7 @@ export const removeProductFromCart =
 	};
 
 export const changeProductCount =
-	(count: number, id: number) => (dispatch: Dispatch<AnyAction>) => {
+	(count: number, id: string) => (dispatch: Dispatch<AnyAction>) => {
 		let cart = JSON.parse(localStorage.getItem('cart') as string);
 		cart.products = cart.products.map((product: ICartCount) => {
 			if (product.item.id === id) {
