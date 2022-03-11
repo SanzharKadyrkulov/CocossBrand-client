@@ -22,8 +22,10 @@ const OrderForm: FC = () => {
 		const newOrder = {
 			...cart,
 			userInfo: { ...infoRef.current },
-			date: new Date().toString().split(' ').slice(0, 5).join(' '),
+			// date: new Date().toString().split(' ').slice(0, 5).join(' '),
+			date: new Date(Date.now()).toDateString(),
 		};
+		console.log(newOrder);
 		addOrder(newOrder);
 		localStorage.removeItem('cart');
 		getCart();

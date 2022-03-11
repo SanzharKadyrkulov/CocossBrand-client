@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import useActions from '../../../hooks/useActions';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { IInfo } from '../../../store/order/order.types';
-import { IProduct } from '../../../store/product/product.types';
-import { RadioGroup } from '@headlessui/react';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { storage } from '../../../../firebase/firebase';
 
 const colors = [
 	{
@@ -63,10 +63,14 @@ function classNames(...classes: string[]) {
 }
 
 const AddDressForm = () => {
-	const [selectedColor, setSelectedColor] = useState(colors[0]);
+	const [chosenImage, setChooseImage] = useState<File | null>(null);
 	const { getCart, addProduct } = useActions();
 	const infoRef = useRef<IInfo>({} as IInfo);
 	const router = useRouter();
+
+	useEffect(() => {
+		console.log(chosenImage);
+	}, [chosenImage]);
 
 	const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newObj = {
@@ -75,10 +79,17 @@ const AddDressForm = () => {
 		};
 		infoRef.current = newObj;
 	};
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		let imageUrl;
+		if (chosenImage) {
+			const imageRef = ref(storage, chosenImage.name);
+			await uploadBytes(imageRef, chosenImage);
+			imageUrl = await getDownloadURL(imageRef);
+		}
 		const newDress: any = {
 			...infoRef.current,
+			image: imageUrl,
 			colors,
 			sizes,
 		};
@@ -121,25 +132,7 @@ const AddDressForm = () => {
 											/>
 										</div>
 
-										<div className='col-span-6 sm:col-span-4'>
-											<label
-												htmlFor='image'
-												className='block text-sm font-medium text-gray-700'
-											>
-												Image
-											</label>
-											<input
-												onChange={(e) => handleChangeInput(e)}
-												type='text'
-												required
-												placeholder='Image'
-												name='image'
-												id='image'
-												className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
-											/>
-										</div>
-
-										<div className='col-span-6 sm:col-span-6 lg:col-span-2'>
+										<div className='col-span-6 sm:col-span-6 lg:col-span-3'>
 											<label
 												htmlFor='price'
 												className='block text-sm font-medium text-gray-700'
@@ -191,47 +184,27 @@ const AddDressForm = () => {
 												className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
 											/>
 										</div>
-										<div>
-											<h4 className='text-sm text-gray-900 font-medium'>
-												Color
-											</h4>
 
-											<RadioGroup
-												value={selectedColor}
-												onChange={setSelectedColor}
-												className='mt-4'
+										<div className='col-span-6 sm:col-span-3'>
+											<label
+												htmlFor='image'
+												className='block text-sm font-medium text-gray-700'
 											>
-												<RadioGroup.Label className='sr-only'>
-													Choose a color
-												</RadioGroup.Label>
-												<div className='flex items-center space-x-3'>
-													{colors.map((color) => (
-														<RadioGroup.Option
-															key={color.name}
-															value={color}
-															className={({ active, checked }) =>
-																classNames(
-																	color.selectedClass,
-																	active && checked ? 'ring ring-offset-1' : '',
-																	!active && checked ? 'ring-2' : '',
-																	'-m-0.5 relative p-0.5 rounded-full flex items-center justify-center cursor-pointer focus:outline-none'
-																)
-															}
-														>
-															<RadioGroup.Label as='p' className='sr-only'>
-																{color.name}
-															</RadioGroup.Label>
-															<span
-																aria-hidden='true'
-																className={classNames(
-																	color.class,
-																	'h-8 w-8 border border-black border-opacity-10 rounded-full'
-																)}
-															/>
-														</RadioGroup.Option>
-													))}
-												</div>
-											</RadioGroup>
+												Image
+											</label>
+											<input
+												onChange={(e) =>
+													setChooseImage(
+														e.target.files ? e.target.files[0] : null
+													)
+												}
+												type='file'
+												required
+												placeholder='Image'
+												name='image'
+												id='image'
+												className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+											/>
 										</div>
 									</div>
 								</div>

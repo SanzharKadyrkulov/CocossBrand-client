@@ -21,7 +21,7 @@ export const getOrders = () => async (dispatch: Dispatch<AnyAction>) => {
 };
 export const addOrder = (order: IOrder) => async (dispatch: Dispatch<any>) => {
 	try {
-		const docRef = await addDoc(orderRef, order);
+		await addDoc(orderRef, order);
 		dispatch(getOrders());
 	} catch (e) {
 		dispatch(getOrdersError(JSON.stringify(e)));
