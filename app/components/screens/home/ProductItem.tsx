@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { FC, useEffect } from 'react';
+import { FC, MouseEvent, useEffect } from 'react';
 import useActions from '../../../hooks/useActions';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { IProduct } from '../../../store/product/product.types';
@@ -16,12 +16,15 @@ function classNames(...classes: string[]) {
 
 export default function ProductItem({ product }: { product: IProduct }) {
 	const [open, setOpen] = useState(false);
-	const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+	// const [selectedColor, setSelectedColor] = useState(product.colors[0]);
 	const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
 	const [newCart, setNewCart] = useState<ICartState | null>(null);
 
-	const { getCart, addProductToCart } = useActions();
-	const { cart } = useTypedSelector((state) => state);
+	const { getCart, addProductToCart, deleteProduct } = useActions();
+	const {
+		cart,
+		user: { userInfo },
+	} = useTypedSelector((state) => state);
 	useEffect(() => {
 		getCart();
 	}, []);
@@ -44,9 +47,15 @@ export default function ProductItem({ product }: { product: IProduct }) {
 			price: product.price,
 			image: product.image,
 			size: selectedSize.name,
-			color: selectedColor.name,
+			color: product.color,
 		};
 		addProductToCart(newCartItem);
+	};
+
+	const handleDelete = (e: MouseEvent<SVGSVGElement>, item: IProduct) => {
+		e.stopPropagation();
+		if (!confirm(`Вы уверены что хотите удалить ${item.title} `)) return;
+		deleteProduct(item);
 	};
 
 	return (
@@ -64,9 +73,44 @@ export default function ProductItem({ product }: { product: IProduct }) {
 					/>
 				</div>
 				<h3 className='mt-4 text-sm text-gray-700'>{product.title}</h3>
-				<p className='mt-1 text-lg font-medium text-gray-900'>
+				<p className='mt-1 text-lg inline-block font-medium text-gray-900'>
 					${product.price}
 				</p>
+
+				{userInfo && userInfo.email == 'kadyrkulov.980@gmail.com' ? (
+					<>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							className='w-6 h-6 text-red-700 inline-block ml-4 cursor-pointer'
+							onClick={(e) => handleDelete(e, product)}
+							fill='none'
+							viewBox='0 0 24 24'
+							stroke='currentColor'
+							strokeWidth={2}
+						>
+							<path
+								strokeLinecap='round'
+								strokeLinejoin='round'
+								d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+							/>
+						</svg>
+
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							className='w-6 h-6 text-amber-700 inline-block ml-4 cursor-pointer'
+							fill='none'
+							viewBox='0 0 24 24'
+							stroke='currentColor'
+							strokeWidth={2}
+						>
+							<path
+								strokeLinecap='round'
+								strokeLinejoin='round'
+								d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
+							/>
+						</svg>
+					</>
+				) : null}
 			</a>
 
 			<Transition.Root show={open} as={Fragment}>
@@ -142,6 +186,7 @@ export default function ProductItem({ product }: { product: IProduct }) {
 												<p className='text-2xl text-gray-900'>
 													${product.price}
 												</p>
+												<p className='text-xl text-gray-900'>{product.color}</p>
 
 												{/* Reviews */}
 												<div className='mt-6'>
@@ -189,55 +234,6 @@ export default function ProductItem({ product }: { product: IProduct }) {
 														setOpen(false);
 													}}
 												>
-													{/* Colors */}
-													<div>
-														<h4 className='text-sm text-gray-900 font-medium'>
-															Color
-														</h4>
-
-														<RadioGroup
-															value={selectedColor}
-															onChange={setSelectedColor}
-															className='mt-4'
-														>
-															<RadioGroup.Label className='sr-only'>
-																Choose a color
-															</RadioGroup.Label>
-															<div className='flex items-center space-x-3'>
-																{product.colors.map((color) => (
-																	<RadioGroup.Option
-																		key={color.name}
-																		value={color}
-																		className={({ active, checked }) =>
-																			classNames(
-																				color.selectedClass,
-																				active && checked
-																					? 'ring ring-offset-1'
-																					: '',
-																				!active && checked ? 'ring-2' : '',
-																				'-m-0.5 relative p-0.5 rounded-full flex items-center justify-center cursor-pointer focus:outline-none'
-																			)
-																		}
-																	>
-																		<RadioGroup.Label
-																			as='p'
-																			className='sr-only'
-																		>
-																			{color.name}
-																		</RadioGroup.Label>
-																		<span
-																			aria-hidden='true'
-																			className={classNames(
-																				color.class,
-																				'h-8 w-8 border border-black border-opacity-10 rounded-full'
-																			)}
-																		/>
-																	</RadioGroup.Option>
-																))}
-															</div>
-														</RadioGroup>
-													</div>
-
 													{/* Sizes */}
 													<div className='mt-10'>
 														<div className='flex items-center justify-between'>
@@ -344,39 +340,55 @@ export default function ProductItem({ product }: { product: IProduct }) {
 	);
 }
 
-// const ProductItem: FC<{ product: IProduct }> = ({ product }) => {
-// const { addItem } = useActions();
-// const { cart } = useTypedSelector(state => state);
+{
+	/* Colors */
+}
+{
+	/* <div>
+														<h4 className='text-sm text-gray-900 font-medium'>
+															Color
+														</h4>
 
-// const isExistsInCart = cart.some(i => i.id === product.id);
-
-// 	return (
-// <div className='group relative'>
-// 	<div className='w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none'>
-// 		<img
-// 			src={product.image}
-// 			alt={product.title}
-// 			className='w-full h-full object-center object-cover lg:w-full lg:h-full'
-// 		/>
-// 	</div>
-// 	<div className='mt-4 flex justify-between'>
-// 		<div>
-// 			<h3 className='text-sm text-gray-700'>
-// 				<a href='#'>
-// 					<span
-// 						onClick={() => !isExistsInCart && addItem(product)}
-// 						aria-hidden='true'
-// 						className='absolute inset-0'
-// 					/>
-// 					{product.title}
-// 				</a>
-// 			</h3>
-// 			<p className='mt-1 text-sm text-gray-500'>{product.color}</p>
-// 		</div>
-// 		<p className='text-sm font-medium text-gray-900'>${product.price}</p>
-// 	</div>
-// </div>
-// 	);
-// };
-
-// export default ProductItem;
+														<RadioGroup
+															value={selectedColor}
+															onChange={setSelectedColor}
+															className='mt-4'
+														>
+															<RadioGroup.Label className='sr-only'>
+																Choose a color
+															</RadioGroup.Label>
+															<div className='flex items-center space-x-3'>
+																{product.colors.map((color) => (
+																	<RadioGroup.Option
+																		key={color.name}
+																		value={color}
+																		className={({ active, checked }) =>
+																			classNames(
+																				color.selectedClass,
+																				active && checked
+																					? 'ring ring-offset-1'
+																					: '',
+																				!active && checked ? 'ring-2' : '',
+																				'-m-0.5 relative p-0.5 rounded-full flex items-center justify-center cursor-pointer focus:outline-none'
+																			)
+																		}
+																	>
+																		<RadioGroup.Label
+																			as='p'
+																			className='sr-only'
+																		>
+																			{color.name}
+																		</RadioGroup.Label>
+																		<span
+																			aria-hidden='true'
+																			className={classNames(
+																				color.class,
+																				'h-8 w-8 border border-black border-opacity-10 rounded-full'
+																			)}
+																		/>
+																	</RadioGroup.Option>
+																))}
+															</div>
+														</RadioGroup>
+													</div> */
+}

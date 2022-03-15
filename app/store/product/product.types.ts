@@ -20,7 +20,8 @@ export interface IProduct {
 	price: number;
 	image: string;
 	rating: number;
-	colors: IColor[];
+	// colors: IColor[];
+	color: string;
 	reviewCount: number;
 	sizes: ISize[];
 }

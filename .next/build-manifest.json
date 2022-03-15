@@ -30,6 +30,11 @@
       "static/chunks/main.js",
       "static/chunks/pages/addDress.js"
     ],
+    "/admin": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/admin.js"
+    ],
     "/list": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",

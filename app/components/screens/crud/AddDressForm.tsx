@@ -1,60 +1,69 @@
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import useActions from '../../../hooks/useActions';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { IInfo } from '../../../store/order/order.types';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { storage } from '../../../../firebase/firebase';
+import { Dialog, RadioGroup, Transition } from '@headlessui/react';
 
-const colors = [
-	{
-		name: 'White',
-		class: 'bg-white',
-		selectedClass: 'ring-gray-400',
-	},
-	{
-		name: 'Gray',
-		class: 'bg-gray-200',
-		selectedClass: 'ring-gray-400',
-	},
-	{
-		name: 'Black',
-		class: 'bg-gray-900',
-		selectedClass: 'ring-gray-900',
-	},
-];
+// const colors = [
+// 	{
+// 		name: 'White',
+// 		class: 'bg-white',
+// 		selectedClass: 'ring-gray-400',
+// 	},
+// 	{
+// 		name: 'Gray',
+// 		class: 'bg-gray-200',
+// 		selectedClass: 'ring-gray-400',
+// 	},
+// 	{
+// 		name: 'Black',
+// 		class: 'bg-gray-900',
+// 		selectedClass: 'ring-gray-900',
+// 	},
+// ];
 const sizes = [
 	{
 		name: 'XXS',
-		inStock: true,
+		inStock: false,
+		active: false,
 	},
 	{
 		name: 'XS',
-		inStock: true,
+		inStock: false,
+		active: false,
 	},
 	{
 		name: 'S',
-		inStock: true,
+		inStock: false,
+		active: true,
 	},
 	{
 		name: 'M',
-		inStock: true,
+		inStock: false,
+		active: false,
 	},
 	{
 		name: 'L',
-		inStock: true,
+		inStock: false,
+		active: false,
 	},
 	{
 		name: 'XL',
-		inStock: true,
+		inStock: false,
+		active: false,
 	},
 	{
 		name: 'XXL',
-		inStock: true,
+		inStock: false,
+		active: false,
 	},
 	{
 		name: 'XXXL',
 		inStock: false,
+		active: false,
 	},
 ];
 
@@ -64,6 +73,16 @@ function classNames(...classes: string[]) {
 
 const AddDressForm = () => {
 	const [chosenImage, setChooseImage] = useState<File | null>(null);
+	const [sizesState, setSizesState] = useState(sizes);
+	const [selectedSize, setSelectedSize] = useState(sizes[2]);
+	const changeSizeStatus = (name: string) => {
+		setSizesState((state) => {
+			const newSizes = state.map((item) =>
+				item.name === name ? { ...item, active: !item.active } : item
+			);
+			return newSizes;
+		});
+	};
 	const { getCart, addProduct } = useActions();
 	const infoRef = useRef<IInfo>({} as IInfo);
 	const router = useRouter();
@@ -87,11 +106,13 @@ const AddDressForm = () => {
 			await uploadBytes(imageRef, chosenImage);
 			imageUrl = await getDownloadURL(imageRef);
 		}
+		const finalSizes = sizesState.map((item) =>
+			item.active ? { ...item, inStock: true } : item
+		);
 		const newDress: any = {
 			...infoRef.current,
 			image: imageUrl,
-			colors,
-			sizes,
+			sizes: finalSizes,
 		};
 		addProduct(newDress);
 		localStorage.removeItem('cart');
@@ -100,7 +121,7 @@ const AddDressForm = () => {
 	};
 	return (
 		<>
-			<div className='mt-10 sm:mt-0'>
+			<div className='mt-10 sm:mt-0 max-w-'>
 				<div className='md:grid md:grid-cols-3 md:gap-6'>
 					<div className='md:col-span-1'>
 						<div className='px-4 sm:px-0'>
@@ -184,8 +205,59 @@ const AddDressForm = () => {
 												className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
 											/>
 										</div>
+										{/* Sizes */}
 
-										<div className='col-span-6 sm:col-span-3'>
+										<div className='mt-10 col-span-6 sm:col-span-3'>
+											<div className='flex items-center justify-between'>
+												<h4 className='text-sm text-gray-900 font-medium'>
+													Size
+												</h4>
+												<a
+													href='#'
+													className='text-sm font-medium text-indigo-600 hover:text-indigo-500'
+												>
+													Size guide
+												</a>
+											</div>
+
+											<RadioGroup
+												value={selectedSize}
+												onChange={(e) => changeSizeStatus(e.name)}
+												className='mt-4'
+											>
+												<div className='grid grid-cols-4 gap-4'>
+													{sizesState.map((size) => (
+														<RadioGroup.Option
+															key={size.name}
+															value={size}
+															className={classNames(
+																'bg-white shadow-sm text-gray-900 cursor-pointer',
+																size.active ? 'ring-2 ring-indigo-500' : '',
+																'group relative border rounded-md py-3 px-4 flex items-center justify-center text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1'
+															)}
+														>
+															<>
+																<RadioGroup.Label as='p'>
+																	{size.name}
+																</RadioGroup.Label>
+																<div
+																	className={classNames(
+																		size.active ? 'border' : 'border-2',
+																		size.active
+																			? 'border-indigo-500'
+																			: 'border-transparent',
+																		'absolute -inset-px rounded-md pointer-events-none'
+																	)}
+																	aria-hidden='true'
+																/>
+															</>
+														</RadioGroup.Option>
+													))}
+												</div>
+											</RadioGroup>
+										</div>
+
+										<div className='col-span-6 sm:col-span-4'>
 											<label
 												htmlFor='image'
 												className='block text-sm font-medium text-gray-700'

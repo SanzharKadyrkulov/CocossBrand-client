@@ -1,6 +1,8 @@
 import { AnyAction } from '@reduxjs/toolkit';
-import { addDoc, getDocs } from 'firebase/firestore';
+import { addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { deleteObject, ref } from 'firebase/storage';
 import { Dispatch } from 'react';
+import { db, storage } from '../../../firebase/firebase';
 import { dressRef } from '../../../firebase/fireConsts';
 import {
 	getProductsError,
@@ -29,5 +31,17 @@ export const addProduct =
 			dispatch(getProducts());
 		} catch (e) {
 			dispatch(getProductsError(JSON.stringify(e)));
+		}
+	};
+
+export const deleteProduct =
+	(item: IProduct) => async (dispatch: Dispatch<any>) => {
+		try {
+			await deleteObject(ref(storage, item.image));
+			await deleteDoc(doc(db, 'dress', item.id));
+
+			dispatch(getProducts());
+		} catch (e) {
+			console.log(e);
 		}
 	};
