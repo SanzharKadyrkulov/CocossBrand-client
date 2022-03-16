@@ -28,42 +28,34 @@ const sizes = [
 	{
 		name: 'XXS',
 		inStock: false,
-		active: false,
 	},
 	{
 		name: 'XS',
 		inStock: false,
-		active: false,
 	},
 	{
 		name: 'S',
 		inStock: false,
-		active: true,
 	},
 	{
 		name: 'M',
 		inStock: false,
-		active: false,
 	},
 	{
 		name: 'L',
 		inStock: false,
-		active: false,
 	},
 	{
 		name: 'XL',
 		inStock: false,
-		active: false,
 	},
 	{
 		name: 'XXL',
 		inStock: false,
-		active: false,
 	},
 	{
 		name: 'XXXL',
 		inStock: false,
-		active: false,
 	},
 ];
 
@@ -74,22 +66,18 @@ function classNames(...classes: string[]) {
 const AddDressForm = () => {
 	const [chosenImage, setChooseImage] = useState<File | null>(null);
 	const [sizesState, setSizesState] = useState(sizes);
-	const [selectedSize, setSelectedSize] = useState(sizes[2]);
+	const [loading, setLoading] = useState(false);
+
 	const changeSizeStatus = (name: string) => {
 		setSizesState((state) => {
-			const newSizes = state.map((item) =>
-				item.name === name ? { ...item, active: !item.active } : item
+			return state.map((item) =>
+				item.name === name ? { ...item, inStock: !item.inStock } : item
 			);
-			return newSizes;
 		});
 	};
 	const { getCart, addProduct } = useActions();
-	const infoRef = useRef<IInfo>({} as IInfo);
 	const router = useRouter();
-
-	useEffect(() => {
-		console.log(chosenImage);
-	}, [chosenImage]);
+	const infoRef = useRef<IInfo>({} as IInfo);
 
 	const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newObj = {
@@ -100,25 +88,25 @@ const AddDressForm = () => {
 	};
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		setLoading(true);
 		let imageUrl;
 		if (chosenImage) {
 			const imageRef = ref(storage, chosenImage.name);
 			await uploadBytes(imageRef, chosenImage);
 			imageUrl = await getDownloadURL(imageRef);
 		}
-		const finalSizes = sizesState.map((item) =>
-			item.active ? { ...item, inStock: true } : item
-		);
 		const newDress: any = {
 			...infoRef.current,
 			image: imageUrl,
-			sizes: finalSizes,
+			sizes: sizesState,
 		};
 		addProduct(newDress);
 		localStorage.removeItem('cart');
 		getCart();
+		setLoading(false);
 		router.back();
 	};
+
 	return (
 		<>
 			<div className='mt-10 sm:mt-0 max-w-'>
@@ -153,7 +141,7 @@ const AddDressForm = () => {
 											/>
 										</div>
 
-										<div className='col-span-6 sm:col-span-6 lg:col-span-3'>
+										<div className='col-span-6'>
 											<label
 												htmlFor='price'
 												className='block text-sm font-medium text-gray-700'
@@ -167,6 +155,24 @@ const AddDressForm = () => {
 												id='price'
 												required
 												placeholder='Price'
+												className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+											/>
+										</div>
+
+										<div className='col-span-6'>
+											<label
+												htmlFor='color'
+												className='block text-sm font-medium text-gray-700'
+											>
+												Color
+											</label>
+											<input
+												onChange={(e) => handleChangeInput(e)}
+												type='text'
+												name='color'
+												id='color'
+												required
+												placeholder='Color'
 												className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
 											/>
 										</div>
@@ -221,8 +227,11 @@ const AddDressForm = () => {
 											</div>
 
 											<RadioGroup
-												value={selectedSize}
-												onChange={(e) => changeSizeStatus(e.name)}
+												value={{
+													name: 'XXXL',
+													inStock: false,
+												}}
+												onChange={(e) => e && changeSizeStatus(e.name)}
 												className='mt-4'
 											>
 												<div className='grid grid-cols-4 gap-4'>
@@ -232,7 +241,7 @@ const AddDressForm = () => {
 															value={size}
 															className={classNames(
 																'bg-white shadow-sm text-gray-900 cursor-pointer',
-																size.active ? 'ring-2 ring-indigo-500' : '',
+																size.inStock ? 'ring-2 ring-indigo-500' : '',
 																'group relative border rounded-md py-3 px-4 flex items-center justify-center text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1'
 															)}
 														>
@@ -242,8 +251,8 @@ const AddDressForm = () => {
 																</RadioGroup.Label>
 																<div
 																	className={classNames(
-																		size.active ? 'border' : 'border-2',
-																		size.active
+																		size.inStock ? 'border' : 'border-2',
+																		size.inStock
 																			? 'border-indigo-500'
 																			: 'border-transparent',
 																		'absolute -inset-px rounded-md pointer-events-none'
@@ -283,14 +292,41 @@ const AddDressForm = () => {
 								<div className='px-4 py-3 bg-gray-50 text-right sm:px-6'>
 									<button
 										type='submit'
-										className='inline-flex justify-center py-2 px-4 w-full border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+										className='inline-flex justify-center py-2 px-4 w-full border border-transparent shadow-sm text-sm font-semibold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 '
 									>
-										Добавить
+										{loading ? (
+											<>
+												<svg
+													xmlns='http://www.w3.org/2000/svg'
+													className='animate-bounce h-5 w-5 mr-3'
+													viewBox='0 0 20 20'
+													fill='currentColor'
+												>
+													<path
+														fillRule='evenodd'
+														d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z'
+														clipRule='evenodd'
+													/>
+												</svg>
+												Загружаю
+												<span className='ml-1 animate-bounce text-white font-semibold text-sm'>
+													.
+												</span>
+												<span className='animation-delay-75 animate-bounce text-white font-semibold text-sm'>
+													.
+												</span>
+												<span className='animation-delay-225 delay-100 animate-bounce text-white font-semibold text-sm'>
+													.
+												</span>
+											</>
+										) : (
+											'Добавить'
+										)}
 									</button>
 									<button
 										onClick={() => router.back()}
 										type='button'
-										className='inline-flex justify-center py-2 px-4 w-full border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 mt-1'
+										className='inline-flex justify-center py-2 px-4 w-full border border-transparent shadow-sm text-sm font-semibold rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 mt-1'
 									>
 										Отменить
 									</button>

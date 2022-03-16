@@ -1,11 +1,15 @@
+import { E164Number } from 'libphonenumber-js/types';
 import { useRouter } from 'next/router';
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
+import Input from 'react-phone-number-input/input';
+import ru from 'react-phone-number-input/locale/ru.json';
+import 'react-phone-number-input/style.css';
 import useActions from '../../../hooks/useActions';
-import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { IInfo } from '../../../store/order/order.types';
 
 const OrderForm: FC = () => {
 	const { getCart, addOrder } = useActions();
+	const [phoneNumber, setPhoneNumber] = useState<E164Number>();
 	const infoRef = useRef<IInfo>({} as IInfo);
 	const router = useRouter();
 
@@ -21,11 +25,11 @@ const OrderForm: FC = () => {
 		const cart = JSON.parse(localStorage.getItem('cart') as string);
 		const newOrder = {
 			...cart,
-			userInfo: { ...infoRef.current },
+			userInfo: { ...infoRef.current, phoneNumber },
 			// date: new Date().toString().split(' ').slice(0, 5).join(' '),
-			date: new Date(Date.now()).toDateString(),
+			// date: new Date(Date.now()).toDateString(),
+			date: Date.now(),
 		};
-		console.log(newOrder);
 		addOrder(newOrder);
 		localStorage.removeItem('cart');
 		getCart();
@@ -62,29 +66,33 @@ const OrderForm: FC = () => {
 											placeholder='Санжар'
 											required
 											autoComplete='given-name'
-											className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+											className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300'
 										/>
 									</div>
 
-									<div className='col-span-6 sm:col-span-4'>
+									{/* <div className='col-span-6 sm:col-span-4'>
 										<label
 											htmlFor='phone-number'
 											className='block text-sm font-medium text-gray-700'
 										>
 											Номер телефона
 										</label>
-										<input
-											onChange={(e) => handleChangeInput(e)}
+										<PhoneInputWithCountrySelect
+											countrySelectProps={{ unicodeFlags: true }}
+											international
+											countryCallingCodeEditable={false}
+											defaultCountry='KG'
+											value={phoneNumber}
+											onChange={setPhoneNumber}
 											type='text'
 											required
-											pattern='[0-9]{3}[0-9]{3}[0-9]{3}'
-											placeholder='700000500'
-											name='phoneNumber'
-											id='phone-number'
-											autoComplete='given-number'
+											labels={ru}
+											placeholder='Ваш телефон'
+											// name='phoneNumber'
+											// id='phone-number'
 											className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
 										/>
-									</div>
+									</div> */}
 
 									<div className='col-span-6 sm:col-span-6 lg:col-span-2'>
 										<label
@@ -101,7 +109,7 @@ const OrderForm: FC = () => {
 											required
 											placeholder='Бишкек'
 											autoComplete='address-level2'
-											className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+											className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300'
 										/>
 									</div>
 
@@ -120,22 +128,43 @@ const OrderForm: FC = () => {
 											placeholder='Проспект Чуй, 92'
 											id='street-address'
 											autoComplete='street-address'
-											className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+											className='mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300'
 										/>
+									</div>
+
+									<div className='col-span-6 sm:col-span-4'>
+										<label
+											htmlFor='phone-number'
+											className='block text-sm font-medium text-gray-700 mb-1'
+										>
+											Номер телефона
+										</label>
+										<div className='rounded-md overflow-hidden'>
+											<Input
+												country='KG'
+												international
+												withCountryCallingCode
+												value={phoneNumber}
+												onChange={setPhoneNumber}
+												required
+												labels={ru}
+												placeholder='Ваш телефон'
+											/>
+										</div>
 									</div>
 								</div>
 							</div>
 							<div className='px-4 py-3 bg-gray-50 text-right sm:px-6'>
 								<button
 									type='submit'
-									className='inline-flex justify-center py-2 px-4 w-full border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+									className='inline-flex justify-center py-2 px-4 w-full border border-transparent shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
 								>
 									Заказать
 								</button>
 								<button
 									onClick={() => router.back()}
 									type='button'
-									className='inline-flex justify-center py-2 px-4 w-full border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 mt-1'
+									className='inline-flex justify-center py-2 px-4 w-full border border-transparent shadow-sm text-sm font-medium text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 mt-1'
 								>
 									Отменить
 								</button>

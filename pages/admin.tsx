@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import { NextPage } from 'next';
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { PaperClipIcon } from '@heroicons/react/solid';
 
 import HeaderLayout from '../app/components/layouts/HeaderLayout';
 import useActions from '../app/hooks/useActions';
 import { useTypedSelector } from '../app/hooks/useTypedSelector';
 import { useRouter } from 'next/router';
+import { ADMINS } from '../app/helpers/consts';
 
 const Admin: NextPage = () => {
 	const {
@@ -16,7 +16,7 @@ const Admin: NextPage = () => {
 	const { getOrders } = useActions();
 	const router = useRouter();
 	useEffect(() => {
-		if (!userInfo || userInfo.email !== 'kadyrkulov.980@gmail.com') {
+		if (!userInfo || !ADMINS.includes(userInfo.email)) {
 			router.push('/list	');
 		}
 	}, [userInfo]);
@@ -27,9 +27,20 @@ const Admin: NextPage = () => {
 		<HeaderLayout>
 			<button
 				onClick={() => router.push('/addDress')}
-				className='block text-center bg-indigo-600 border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-indigo-700 fixed top-2 z-10 left-12'
+				className='block text-center bg-indigo-600 border border-transparent rounded-full py-3 px-3 font-medium text-white hover:bg-indigo-700 fixed bottom-5 z-10 right-5'
 			>
-				Добавить
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					className='h-5 w-5'
+					viewBox='0 0 20 20'
+					fill='white'
+				>
+					<path
+						fillRule='evenodd'
+						d='M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z'
+						clipRule='evenodd'
+					/>
+				</svg>
 			</button>
 			{orders.length ? (
 				orders.map((item) => (
@@ -42,7 +53,7 @@ const Admin: NextPage = () => {
 								Информация о заказе
 							</h3>
 							<h6 className='text-sm font-medium text-gray-700'>
-								{item.data().date}
+								{new Date(item.data().date).toDateString()}
 							</h6>
 						</div>
 						<div className='border-t border-gray-200'>

@@ -1,7 +1,12 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const Checkout: NextPage = () => {
+	const router = useRouter();
+	setTimeout(() => {
+		router.push('/list');
+	}, 3500);
 	return (
 		<>
 			<div className='p-8 flex items-center justify-center flex-col'>

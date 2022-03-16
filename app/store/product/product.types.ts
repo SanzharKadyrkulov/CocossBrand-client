@@ -12,7 +12,7 @@ export interface IColor {
 
 export interface ISize {
 	name: string;
-	inStock: true;
+	inStock: boolean;
 }
 export interface IProduct {
 	id: string;

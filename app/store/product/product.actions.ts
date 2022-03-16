@@ -1,5 +1,5 @@
 import { AnyAction } from '@reduxjs/toolkit';
-import { addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { addDoc, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
 import { Dispatch } from 'react';
 import { db, storage } from '../../../firebase/firebase';
@@ -42,6 +42,16 @@ export const deleteProduct =
 
 			dispatch(getProducts());
 		} catch (e) {
-			console.log(e);
+			dispatch(getProductsError(JSON.stringify(e)));
+		}
+	};
+
+export const editProduct =
+	(item: any, id: string) => async (dispatch: Dispatch<any>) => {
+		try {
+			await updateDoc(doc(db, 'dress', id), item);
+			dispatch(getProducts());
+		} catch (e) {
+			dispatch(getProductsError(JSON.stringify(e)));
 		}
 	};

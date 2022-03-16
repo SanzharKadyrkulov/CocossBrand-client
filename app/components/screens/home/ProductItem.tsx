@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { FC, MouseEvent, useEffect } from 'react';
+import { MouseEvent, useEffect } from 'react';
 import useActions from '../../../hooks/useActions';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { IProduct } from '../../../store/product/product.types';
@@ -9,16 +9,25 @@ import { Dialog, RadioGroup, Transition } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
 import { StarIcon } from '@heroicons/react/solid';
 import { ICart, ICartState } from '../../../store/cart/cart.types';
+import EditDressForm from '../crud/EditDressForm';
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(' ');
 }
 
-export default function ProductItem({ product }: { product: IProduct }) {
+export default function ProductItem({
+	product,
+	showToAdmin,
+}: {
+	product: IProduct;
+	showToAdmin: boolean;
+}) {
 	const [open, setOpen] = useState(false);
+	const [editOpen, setEditOpen] = useState(false);
 	// const [selectedColor, setSelectedColor] = useState(product.colors[0]);
 	const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
 	const [newCart, setNewCart] = useState<ICartState | null>(null);
+	const [updateLoad, setUpdateLoad] = useState(false);
 
 	const { getCart, addProductToCart, deleteProduct } = useActions();
 	const {
@@ -54,10 +63,32 @@ export default function ProductItem({ product }: { product: IProduct }) {
 
 	const handleDelete = (e: MouseEvent<SVGSVGElement>, item: IProduct) => {
 		e.stopPropagation();
-		if (!confirm(`Вы уверены что хотите удалить ${item.title} `)) return;
+		if (!confirm(`Вы уверены что хотите удалить "${item.title.toUpperCase()}"`))
+			return;
+		setUpdateLoad(true);
 		deleteProduct(item);
 	};
 
+	if (updateLoad) {
+		return (
+			<div className='flex items-center justify-center w-full h-full p-5'>
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					className='animate-spin h-8 w-8'
+					fill='none'
+					viewBox='0 0 24 24'
+					stroke='currentColor'
+					strokeWidth={2}
+				>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
+					/>
+				</svg>
+			</div>
+		);
+	}
 	return (
 		<>
 			<a
@@ -77,7 +108,7 @@ export default function ProductItem({ product }: { product: IProduct }) {
 					${product.price}
 				</p>
 
-				{userInfo && userInfo.email == 'kadyrkulov.980@gmail.com' ? (
+				{showToAdmin ? (
 					<>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
@@ -96,6 +127,10 @@ export default function ProductItem({ product }: { product: IProduct }) {
 						</svg>
 
 						<svg
+							onClick={(e) => {
+								e.stopPropagation();
+								setEditOpen(true);
+							}}
 							xmlns='http://www.w3.org/2000/svg'
 							className='w-6 h-6 text-amber-700 inline-block ml-4 cursor-pointer'
 							fill='none'
@@ -336,6 +371,12 @@ export default function ProductItem({ product }: { product: IProduct }) {
 					</div>
 				</Dialog>
 			</Transition.Root>
+			<EditDressForm
+				product={product}
+				open={editOpen}
+				setOpen={setEditOpen}
+				setUpdateLoad={setUpdateLoad}
+			/>
 		</>
 	);
 }

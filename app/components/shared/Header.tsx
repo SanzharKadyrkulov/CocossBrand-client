@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import useActions from '../../hooks/useActions';
+import { ADMINS } from '../../helpers/consts';
 
 const navigation = [
 	{ name: 'Главная', href: '/', current: false },
@@ -67,8 +68,7 @@ export default function Header() {
 												{item.name}
 											</span>
 										))}
-										{userInfo &&
-										userInfo.email === 'kadyrkulov.980@gmail.com' ? (
+										{userInfo && ADMINS.includes(userInfo.email) ? (
 											<span
 												onClick={() => router.push('/admin')}
 												key={'Admin'}
@@ -139,7 +139,7 @@ export default function Header() {
 
 					<Disclosure.Panel className='sm:hidden'>
 						<div className='px-2 pt-2 pb-3 space-y-1'>
-							{userInfo && userInfo.email === 'kadyrkulov.980@gmail.com' ? (
+							{userInfo && ADMINS.includes(userInfo.email) ? (
 								<Link key={'Admin'} href={'/admin'}>
 									<button
 										aria-hidden='true'

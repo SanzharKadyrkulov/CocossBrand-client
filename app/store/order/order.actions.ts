@@ -11,10 +11,10 @@ import { IOrder } from './order.types';
 
 export const getOrders = () => async (dispatch: Dispatch<AnyAction>) => {
 	try {
-		const q = query(orderRef, orderBy('date'));
+		const q = query(orderRef, orderBy('date', 'desc'));
 		dispatch(getOrdersLoading());
 		const data = await getDocs(q);
-		dispatch(getOrdersSuccess(data.docs.reverse()));
+		dispatch(getOrdersSuccess(data.docs));
 	} catch (e) {
 		dispatch(getOrdersError(JSON.stringify(e)));
 	}
